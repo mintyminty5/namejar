@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our Name Jar</title>
+<link href="https://fonts.googleapis.com/css2?family=Schoolbell&family=Patrick+Hand&family=Gochi+Hand&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Malgun Gothic", sans-serif; background: #EFAF1B; min-height: 100vh; overflow: hidden; }
+.bgstamp { position: fixed; border: 4px solid rgba(196,64,28,.5); border-radius: 50%;
+  color: rgba(196,64,28,.5); display: flex; align-items: center; justify-content: center;
+  font-weight: bold; pointer-events: none; }
+header { position: fixed; top: 14px; left: 0; right: 0; text-align: center; z-index: 5; }
+header h1 { font-family: "Caveat", cursive; font-size: 44px; color: #6b3d0f; }
+header .cnt { font-size: 14px; color: #8a5a1a; }
+
+/* ===== TV 화면(병) ===== */
+#jarWrap { position: fixed; left: 50%; bottom: 2vh; transform: translateX(-50%);
+  width: min(62vh, 92vw); height: 82vh; z-index: 2; }
+#jarGlass { position: absolute; inset: 0; border: 6px solid rgba(120,160,190,.75);
+  border-top: none; border-radius: 26px 26px 60px 60px;
+  background: rgba(210,235,250,.22);
+  box-shadow: inset 12px 0 22px rgba(255,255,255,.35), inset -12px 0 22px rgba(150,190,215,.25); }
+#jarLid { position: absolute; top: -26px; left: 8%; right: 8%; height: 30px;
+  background: #93a7b3; border-radius: 10px; box-shadow: 0 4px 0 #6d7f8a; }
+#tags { position: absolute; inset: 0; overflow: hidden; border-radius: 26px 26px 60px 60px; }
+.tagp { position: absolute; padding: 6px 16px 7px 16px; cursor: pointer;
+  background: #FCFBF4; color: #2b2b2b; white-space: nowrap;
+  clip-path: polygon(2% 18%, 10% 2%, 30% 8%, 52% 0%, 74% 7%, 92% 2%, 100% 24%, 97% 58%, 100% 86%, 88% 100%, 62% 93%, 38% 100%, 14% 94%, 0% 78%);
+  box-shadow: 2px 3px 4px rgba(90,60,0,.25);
+  background-image: repeating-linear-gradient(180deg, transparent 0 14px, rgba(120,150,200,.25) 14px 15px);
+  animation: fall 1.1s cubic-bezier(.3,.7,.5,1.1); z-index: 3; }
+@keyframes fall {
+  0% { transform: translateY(-90vh) rotate(0deg); }
+  70% { transform: translateY(3vh) rotate(var(--rot)); }
+  85% { transform: translateY(-1.5vh) rotate(var(--rot)); }
+  100% { transform: translateY(0) rotate(var(--rot)); } }
+.tagp span { display: inline-block; }
+#menu { position: fixed; left: 18px; bottom: 18px; z-index: 8; display: flex; gap: 8px; }
+#menu button { background: rgba(255,255,255,.65); border: 1px solid #c9a95f; border-radius: 8px;
+  padding: 7px 12px; font-size: 12px; color: #6b3d0f; cursor: pointer; }
+
+/* ===== 학생 화면(폰) ===== */
+#student { display: none; min-height: 100vh; padding: 30px 22px; position: relative; z-index: 4;
+  max-width: 480px; margin: 0 auto; }
+#student h1 { font-family: "Caveat", cursive; font-size: 42px; color: #6b3d0f; text-align: center; }
+#student .desc { text-align: center; font-size: 14px; color: #7c5514; margin: 4px 0 22px 0; }
+.formcard { background: #FCFBF4; border-radius: 14px; padding: 22px; box-shadow: 0 6px 16px rgba(90,60,0,.25); }
+.formcard label { display: block; font-size: 13px; font-weight: bold; color: #6b3d0f; margin: 12px 0 4px 0; }
+.formcard input, .formcard textarea { width: 100%; border: 2px solid #d9c9a8; border-radius: 8px;
+  padding: 10px; font-size: 18px; background: #fff; font-family: inherit; }
+.formcard input { font-family: "Patrick Hand", cursive; font-size: 24px; }
+.formcard textarea { height: 84px; resize: none; }
+.formcard button { width: 100%; margin-top: 18px; border: none; border-radius: 10px; padding: 14px;
+  font-size: 18px; font-weight: bold; background: #2e7d43; color: #fff; cursor: pointer;
+  box-shadow: 0 4px 0 #1a5c29; }
+.formcard button:active { transform: translateY(3px); box-shadow: 0 1px 0 #1a5c29; }
+.formcard button:disabled { opacity: .6; }
+#done { display: none; text-align: center; margin-top: 26px; }
+#done .minitag { display: inline-block; padding: 8px 20px; background: #FCFBF4; font-size: 26px;
+  clip-path: polygon(2% 18%, 10% 2%, 30% 8%, 52% 0%, 74% 7%, 92% 2%, 100% 24%, 97% 58%, 100% 86%, 88% 100%, 62% 93%, 38% 100%, 14% 94%, 0% 78%);
+  animation: drop .9s cubic-bezier(.3,.7,.5,1.1); }
+@keyframes drop { 0% { transform: translateY(-60vh) rotate(-6deg); } 100% { transform: translateY(0) rotate(3deg); } }
+#done .msg2 { font-size: 16px; color: #6b3d0f; margin-top: 14px; font-weight: bold; }
+#setup { display: none; position: fixed; inset: 0; background: #fff8e8; z-index: 50; padding: 40px 24px;
+  font-size: 15px; line-height: 1.9; color: #503a10; }
+
+/* 쪽지/목록 오버레이 */
+.overlay { position: fixed; inset: 0; background: rgba(40,25,0,.55); z-index: 10;
+  display: none; align-items: center; justify-content: center; }
+.overlay.show { display: flex; }
+.note { background: #FFFDF3; border-radius: 4px; width: min(440px, 90vw); padding: 30px 28px;
+  transform: rotate(-1.5deg); box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  background-image: repeating-linear-gradient(180deg, transparent 0 27px, rgba(120,150,200,.3) 27px 28px); }
+.note .to { font-family: "Caveat", cursive; font-size: 26px; color: #C4401C; }
+.note .msgv { font-family: "Patrick Hand", "Malgun Gothic", cursive; font-size: 22px; margin: 12px 0; line-height: 28px; min-height: 56px; color: #333; }
+.note .from { text-align: right; font-family: "Gochi Hand", cursive; font-size: 22px; color: #555; }
+.note .close, .panel .close { margin-top: 14px; width: 100%; border: none; background: #e5dcc6; border-radius: 8px; padding: 10px; font-weight: bold; cursor: pointer; }
+.panel { background: #FCFBF4; border-radius: 14px; width: min(480px, 92vw); padding: 26px; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.panel h2 { font-family: "Caveat", cursive; font-size: 32px; color: #C4401C; }
+#listPanel { max-height: 66vh; overflow-y: auto; margin-top: 8px; }
+#listPanel .item { border-bottom: 1px dashed #d9c9a8; padding: 8px 2px; font-size: 15px; }
+#listPanel .item b { font-family: "Patrick Hand", cursive; font-size: 19px; color: #C4401C; }
+</style>
+</head>
+<body>
+
+<!-- ===== TV(빔) 화면 ===== -->
+<div id="screen" style="display:none">
+  <header>
+    <h1>Our Name Jar</h1>
+    <div class="cnt"><span id="count">0</span> names inside · 폰으로 이름을 넣으면 여기 떨어집니다</div>
+  </header>
+  <div id="jarWrap">
+    <div id="jarLid"></div>
+    <div id="jarGlass"></div>
+    <div id="tags"></div>
+  </div>
+  <div id="menu">
+    <button onclick="showList()">쪽지 모아보기</button>
+    <button onclick="resetAll()">비우기</button>
+  </div>
+</div>
+
+<!-- ===== 학생(폰) 화면 ===== -->
+<div id="student">
+  <h1>Put your name in!</h1>
+  <div class="desc">방탈출 성공! 이제 네 이름을 우리 반 Name Jar에 넣자.</div>
+  <div class="formcard" id="form">
+    <label>My English name (영문 이름)</label>
+    <input id="nameIn" maxlength="14" placeholder="e.g. Grace">
+    <label>은혜(Unhei)에게 해주고 싶은 말 (선택)</label>
+    <textarea id="msgIn" maxlength="120" placeholder="예: Your name is beautiful!"></textarea>
+    <button id="sendBtn" onclick="send()">JAR에 넣기!</button>
+  </div>
+  <div id="done">
+    <div class="minitag" id="miniName">Grace</div>
+    <div class="msg2">병에 들어갔어! 교실 화면을 봐 👀<br><button style="margin-top:12px; border:none; background:#C4401C; color:#fff; border-radius:8px; padding:8px 16px; font-weight:bold" onclick="again()">친구도 넣기</button></div>
+  </div>
+</div>
+
+<!-- 설정 안내 -->
+<div id="setup">
+  <b>설정이 필요합니다.</b><br><br>
+  이 파일을 메모장으로 열어 아래쪽 SCRIPT_URL 자리에<br>
+  구글 앱스크립트 배포 URL(https://script.google.com/macros/s/..../exec)을 붙여넣으세요.<br><br>
+  앱스크립트 설치법은 함께 드린 NameJar_AppsScript_Code.txt 맨 위 주석을 참고하세요.
+</div>
+
+<div class="overlay" id="noteOv" onclick="hideOv('noteOv')">
+  <div class="note" onclick="event.stopPropagation()">
+    <div class="to">To. Unhei</div>
+    <div class="msgv" id="noteMsg"></div>
+    <div class="from" id="noteFrom"></div>
+    <button class="close" onclick="hideOv('noteOv')">닫기</button>
+  </div>
+</div>
+<div class="overlay" id="listOv" onclick="hideOv('listOv')">
+  <div class="panel" onclick="event.stopPropagation()">
+    <h2>Letters to Unhei</h2>
+    <div id="listPanel"></div>
+    <button class="close" onclick="hideOv('listOv')">닫기</button>
+  </div>
+</div>
+
+<script>
+// ▼▼▼ 여기에 앱스크립트 배포 URL을 붙여넣으세요 (따옴표 안) ▼▼▼
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjMPnDO4H1iv69GGhqUvx8y-_45q7G0Zg2KLov_djtslC0ztkbTbys-qPwz-mfWAMY/exec";
+// ▲▲▲ 예: var SCRIPT_URL = "https://script.google.com/macros/s/AKfy.../exec";
+
+var FONTS = ['"Schoolbell", cursive', '"Patrick Hand", cursive', '"Gochi Hand", cursive', '"Caveat", cursive'];
+var isScreen = new URLSearchParams(location.search).get("mode") === "screen";
+var data = [];
+
+// 배경 도장
+(function () {
+  var marks = ["名", "友", "恩", "惠", "印"];
+  for (var i = 0; i < 12; i++) {
+    var d = document.createElement("div");
+    d.className = "bgstamp";
+    var s = 34 + Math.random() * 40;
+    d.style.width = d.style.height = s + "px";
+    d.style.fontSize = (s * .5) + "px";
+    d.style.left = Math.random() * 96 + "vw";
+    d.style.top = Math.random() * 94 + "vh";
+    d.style.transform = "rotate(" + (Math.random() * 60 - 30) + "deg)";
+    d.textContent = marks[i % marks.length];
+    document.body.appendChild(d);
+  }
+})();
+
+function hideOv(id) { document.getElementById(id).classList.remove("show"); }
+function showOv(id) { document.getElementById(id).classList.add("show"); }
+
+if (!SCRIPT_URL) {
+  document.getElementById("setup").style.display = "block";
+} else if (isScreen) {
+  document.getElementById("screen").style.display = "block";
+  document.body.style.overflow = "hidden";
+  poll(); setInterval(poll, 4000);
+} else {
+  document.getElementById("student").style.display = "block";
+  document.body.style.overflow = "auto";
+}
+
+/* ---------- 학생 모드 ---------- */
+function send() {
+  var name = document.getElementById("nameIn").value.trim();
+  var msg = document.getElementById("msgIn").value.trim();
+  if (!name) { document.getElementById("nameIn").focus(); return; }
+  var btn = document.getElementById("sendBtn");
+  btn.disabled = true; btn.textContent = "넣는 중...";
+  fetch(SCRIPT_URL + "?action=add&name=" + encodeURIComponent(name) + "&msg=" + encodeURIComponent(msg))
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      document.getElementById("form").style.display = "none";
+      var m = document.getElementById("miniName");
+      m.textContent = name;
+      m.style.fontFamily = FONTS[Math.floor(Math.random() * FONTS.length)];
+      document.getElementById("done").style.display = "block";
+    })
+    .catch(function () { alert("연결에 실패했어요. 다시 시도해 주세요."); })
+    .finally(function () { btn.disabled = false; btn.textContent = "JAR에 넣기!"; });
+}
+function again() {
+  document.getElementById("nameIn").value = "";
+  document.getElementById("msgIn").value = "";
+  document.getElementById("done").style.display = "none";
+  document.getElementById("form").style.display = "block";
+}
+
+/* ---------- TV 모드 ---------- */
+function wonky(name) {
+  var html = "";
+  for (var i = 0; i < name.length; i++) {
+    var r = (Math.random() * 14 - 7).toFixed(1);
+    var sc = (0.9 + Math.random() * 0.25).toFixed(2);
+    html += '<span style="transform: rotate(' + r + 'deg) scale(' + sc + ')">' + String(name[i]).replace("<", "&lt;") + "</span>";
+  }
+  return html;
+}
+function place(el, idx) {
+  var tags = document.getElementById("tags");
+  var W = tags.clientWidth, H = tags.clientHeight;
+  var perRow = Math.max(2, Math.floor(W / 150));
+  var row = Math.floor(idx / perRow), col = idx % perRow;
+  var x = (col + 0.5) / perRow * (W - 130) + Math.random() * 34 - 17 + 10;
+  var y = H - 64 - row * 52 - Math.random() * 14;
+  if (y < H * 0.25) y = H * 0.25 + Math.random() * H * 0.45;
+  el.style.left = Math.max(6, Math.min(W - 130, x)) + "px";
+  el.style.top = y + "px";
+}
+function makeTag(item, idx, animate) {
+  var el = document.createElement("div");
+  el.className = "tagp";
+  el.style.fontFamily = FONTS[idx % FONTS.length];
+  el.style.fontSize = (19 + Math.random() * 7) + "px";
+  el.style.setProperty("--rot", (Math.random() * 16 - 8).toFixed(1) + "deg");
+  if (!animate) el.style.animation = "none";
+  el.style.transform = "rotate(" + el.style.getPropertyValue("--rot") + ")";
+  el.innerHTML = wonky(item.name);
+  el.onclick = function () {
+    document.getElementById("noteMsg").textContent = item.msg || "(쪽지 없이 이름만 넣었어요)";
+    document.getElementById("noteFrom").textContent = "From. " + item.name;
+    showOv("noteOv");
+  };
+  document.getElementById("tags").appendChild(el);
+  place(el, idx);
+}
+function poll() {
+  fetch(SCRIPT_URL + "?action=list&t=" + Date.now())
+    .then(function (r) { return r.json(); })
+    .then(function (list) {
+      if (!Array.isArray(list)) return;
+      if (list.length < data.length) { // 비워짐
+        data = [];
+        document.getElementById("tags").innerHTML = "";
+      }
+      for (var i = data.length; i < list.length; i++) {
+        makeTag(list[i], i, true);
+        data.push(list[i]);
+      }
+      document.getElementById("count").textContent = data.length;
+    })
+    .catch(function () {});
+}
+function showList() {
+  var p = document.getElementById("listPanel");
+  p.innerHTML = data.length ? "" : '<div class="item">아직 쪽지가 없어요.</div>';
+  data.forEach(function (it) {
+    var d = document.createElement("div");
+    d.className = "item";
+    d.innerHTML = "<b>" + String(it.name).replace(/</g, "&lt;") + "</b> — " + (it.msg ? String(it.msg).replace(/</g, "&lt;") : "(이름만)");
+    p.appendChild(d);
+  });
+  showOv("listOv");
+}
+function resetAll() {
+  var pin = prompt("비우기 비밀번호를 입력하세요 (기본 0707)");
+  if (!pin) return;
+  fetch(SCRIPT_URL + "?action=clear&pin=" + encodeURIComponent(pin))
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (res.ok) { data = []; document.getElementById("tags").innerHTML = ""; document.getElementById("count").textContent = "0"; }
+      else alert("비밀번호가 틀렸어요.");
+    });
+}
+</script>
+</body>
+</html>
