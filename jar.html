@@ -118,6 +118,10 @@ header .cnt { font-size: 14px; color: #8a5a1a; }
     <div class="minitag" id="miniName">Grace</div>
     <div class="msg2">병에 들어갔어! 교실 화면을 봐 👀<br><button style="margin-top:12px; border:none; background:#C4401C; color:#fff; border-radius:8px; padding:8px 16px; font-weight:bold" onclick="again()">친구도 넣기</button></div>
   </div>
+  <div id="feedbackBox" style="display:none; text-align:center; margin-top:22px">
+    <div style="font-size:14px; color:#6b3d0f; margin-bottom:8px">🎉 방탈출을 완주했어요! 활동 소감을 들려주세요.</div>
+    <button style="border:none; background:#2e7d43; color:#fff; border-radius:10px; padding:12px 20px; font-weight:bold; font-size:15px" onclick="goFeedback()">📋 활동 후기 남기기</button>
+  </div>
 </div>
 
 <!-- 설정 안내 -->
@@ -148,6 +152,12 @@ header .cnt { font-size: 14px; color: #8a5a1a; }
 // ▼▼▼ 여기에 앱스크립트 배포 URL을 붙여넣으세요 (따옴표 안) ▼▼▼
 var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzff8mT7wpa4g2OJ_neYYWvgQUH-XsnshfJafk3y30Fa9JrrkAyaCQX-kPXOrplZHdA/exec";
 // ▲▲▲ 예: var SCRIPT_URL = "https://script.google.com/macros/s/AKfy.../exec";
+
+// ▼▼▼ 여기에 활동 후기 구글 설문지 주소를 붙여넣으세요 (선택. index.html에서 ?form=으로 넘어오면 자동 사용) ▼▼▼
+var FORM_FIXED = "";
+// ▲▲▲ 예: var FORM_FIXED = "https://docs.google.com/forms/d/e/1FAIpQ.../viewform";
+var FORM_URL = new URLSearchParams(location.search).get("form") || FORM_FIXED;
+function goFeedback() { if (FORM_URL) window.open(FORM_URL, "_blank"); }
 
 var FONTS = ['"Schoolbell", cursive', '"Patrick Hand", cursive', '"Gochi Hand", cursive', '"Caveat", cursive'];
 var isScreen = new URLSearchParams(location.search).get("mode") === "screen";
@@ -189,9 +199,12 @@ function send() {
   var name = document.getElementById("nameIn").value.trim();
   var msg = document.getElementById("msgIn").value.trim();
   if (!name) { document.getElementById("nameIn").focus(); return; }
+  var team = "";
+  try { var st = JSON.parse(localStorage.getItem("njesc_v2")); if (st && st.team) team = st.team; } catch (e) {}
   var btn = document.getElementById("sendBtn");
   btn.disabled = true; btn.textContent = "넣는 중...";
-  fetch(SCRIPT_URL + "?action=add&name=" + encodeURIComponent(name) + "&msg=" + encodeURIComponent(msg))
+  fetch(SCRIPT_URL + "?action=add&name=" + encodeURIComponent(name) + "&msg=" + encodeURIComponent(msg) +
+    "&team=" + encodeURIComponent(team))
     .then(function (r) { return r.json(); })
     .then(function () {
       document.getElementById("form").style.display = "none";
@@ -199,6 +212,7 @@ function send() {
       m.textContent = name;
       m.style.fontFamily = FONTS[Math.floor(Math.random() * FONTS.length)];
       document.getElementById("done").style.display = "block";
+      if (FORM_URL) document.getElementById("feedbackBox").style.display = "block";
     })
     .catch(function () { alert("연결에 실패했어요. 다시 시도해 주세요."); })
     .finally(function () { btn.disabled = false; btn.textContent = "JAR에 넣기!"; });
